@@ -6,16 +6,10 @@
 package Crawler;
 
 import Log.Log;
-import static com.sun.corba.se.impl.util.Utility.printStackTrace;
 import feedzilla.Category;
-import feedzilla.SubCategory;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import static java.lang.Thread.sleep;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Scanner;

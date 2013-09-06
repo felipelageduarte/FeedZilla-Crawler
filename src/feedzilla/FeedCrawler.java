@@ -16,12 +16,19 @@ import org.jsoup.select.Elements;
 
 public class FeedCrawler implements Runnable {
 
-    private int count = 100;
+    public int category;
+    public int subcategory;
+    private int count = 10;
     private int title_only = 0;
     private String url;
 
-    public FeedCrawler(String url) {
-        this.url = url;
+    public FeedCrawler(int category, int subcategory) {
+        this.category = category;
+        this.subcategory = subcategory;
+        this.url = "http://api.feedzilla.com/v1/categories/"
+                + this.category + "/subcategories/"
+                + this.subcategory + "/articles.atom?count="
+                + this.count + "&title_only=" + this.title_only;
     }
 
     @Override
@@ -31,13 +38,13 @@ public class FeedCrawler implements Runnable {
         } catch (InterruptedException ex) {
             Log.warn("Could not sleep Thread");
         }
-        
+
         Document doc;
         try {
             doc = Jsoup.connect(this.url).get();
             Elements elements = doc.body().select("entry");
             for (Element element : elements) {
-                new Feed(element);
+                (new Feed(category, subcategory, element)).run();
             }
         } catch (IOException ex) {
             Log.error("Error getting feed: " + this.url, ex);
@@ -45,7 +52,6 @@ public class FeedCrawler implements Runnable {
     }
 
     public static void main(String[] args) throws Exception {
-        String url = "http://api.feedzilla.com/v1/categories/27/subcategories/1370/articles.atom?count=100";
-        new FeedCrawler(url).run();
+        new FeedCrawler(27, 1370).run();
     }
 }
