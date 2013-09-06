@@ -3,10 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Crawler;
-
+import Crawler.FeedCrawler;
 import Log.Log;
 import feedzilla.Category;
+import feedzilla.SubCategory;
 import java.io.File;
 import java.io.IOException;
 import static java.lang.Thread.sleep;
@@ -34,7 +34,10 @@ public class Main {
         }
         xml += "</Categories>";
 
-        FileUtils.writeStringToFile(new File("Categories.xml"), xml);
+        File file = new File("./data/Categories.xml");
+        file.getParentFile().mkdirs();
+        FileUtils.writeStringToFile(file, xml);
+
     }
 
     public static void main(String[] args) throws InterruptedException {
@@ -67,10 +70,14 @@ public class Main {
         } catch (IOException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        
+
 //        while(true){
-//            for()
+            for(Category cat : categories){
+                for(SubCategory subcat : cat.getSubCategoryIterator()){
+                    new FeedCrawler(cat.getId(), subcat.getId()).run();
+                }
+            }
+//            sleep(50*60*1000);
 //        }
     }
 }

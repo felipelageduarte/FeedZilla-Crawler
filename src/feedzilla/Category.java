@@ -5,12 +5,11 @@
  */
 package feedzilla;
 
-import Log.Log;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.HashMap;
+import java.util.Iterator;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -25,9 +24,15 @@ public class Category implements Comparable<Category> {
     private int id;
     private String name;
 
+    public static final HashMap<Integer, String> map;
     private ArrayList<SubCategory> subCategories;
 
+    static{
+        map = new HashMap<Integer, String>();
+    }
+    
     public Category(Element category) throws IOException {
+        
         subCategories = new ArrayList<SubCategory>();
 
         for (Element element : category.children()) {
@@ -37,6 +42,8 @@ public class Category implements Comparable<Category> {
                 this.name = element.text();
             }
         }
+        
+        map.put(id, name);
 
         getSubCategory();
     }
@@ -67,6 +74,10 @@ public class Category implements Comparable<Category> {
     public void addSubCategory(SubCategory sc) {
         this.subCategories.add(sc);
         Collections.sort(subCategories);
+    }
+    
+    public Iterable<SubCategory> getSubCategoryIterator(){
+        return this.subCategories;
     }
 
     @Override

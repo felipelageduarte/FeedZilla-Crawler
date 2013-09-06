@@ -57,19 +57,19 @@ public class Log {
             logger.addHandler(console);
         }
         if (logFile) {
-            fileTxt = new FileHandler("ClientServerIGeom.log", append);
+            fileTxt = new FileHandler("log", append);
             fileTxt.setLevel(Level.ALL);
             fileTxt.setFormatter(new LogFormatter());
             logger.addHandler(fileTxt);
         }
         if (logHTML) {
-            fileHTML = new FileHandler("ClientServerIGeom.html");
+            fileHTML = new FileHandler("log.html");
             fileHTML.setLevel(Level.ALL);
             fileHTML.setFormatter(new HtmlFormatter());
             logger.addHandler(fileHTML);
         }
         if (logXML) {
-            fileXML = new FileHandler("ClientServerIGeom.xml");
+            fileXML = new FileHandler("log.xml");
             fileXML.setLevel(Level.ALL);
             fileXML.setFormatter(new XMLFormatter());
             logger.addHandler(fileXML);

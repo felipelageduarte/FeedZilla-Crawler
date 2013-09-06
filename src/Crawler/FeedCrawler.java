@@ -2,9 +2,10 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package feedzilla;
+package Crawler;
 
 import Log.*;
+import feedzilla.Feed;
 import java.io.IOException;
 import java.util.Random;
 import java.util.logging.Level;
@@ -18,7 +19,7 @@ public class FeedCrawler implements Runnable {
 
     public int category;
     public int subcategory;
-    private int count = 10;
+    private int count = 100;
     private int title_only = 0;
     private String url;
 
@@ -41,7 +42,7 @@ public class FeedCrawler implements Runnable {
 
         Document doc;
         try {
-            doc = Jsoup.connect(this.url).get();
+            doc = Jsoup.connect(this.url).timeout(5000).get();
             Elements elements = doc.body().select("entry");
             for (Element element : elements) {
                 (new Feed(category, subcategory, element)).run();

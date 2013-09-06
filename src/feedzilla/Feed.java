@@ -5,10 +5,14 @@
  */
 package feedzilla;
 
+import Crawler.NewsCrawler;
 import Log.Log;
+import java.io.File;
 import java.io.IOException;
 import java.util.Random;
-import news.News;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.commons.io.FileUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -32,7 +36,7 @@ public class Feed implements Runnable {
     private String copyright;
     private String source_title;
     private String source_link;
-    private News news;
+    private String news;
 
     public Feed(int category, int subcategory, Element entry) {
         this.category = category;
@@ -48,8 +52,11 @@ public class Feed implements Runnable {
                     this.id = Integer.parseInt(element.text().split(":")[1]);
                     break;
                 case "title":
-                    if (source) this.source_title = element.text();
-                    else this.title = element.text();
+                    if (source) {
+                    this.source_title = element.text();
+                } else {
+                    this.title = element.text();
+                }
                     break;
                 case "summary":
                     this.summary = element.text().split("<br")[0];
@@ -64,8 +71,11 @@ public class Feed implements Runnable {
                     this.author = element.text();
                     break;
                 case "link":
-                    if (source) this.source_link = element.attr("href");
-                    else this.link = element.attr("href");                    
+                    if (source) {
+                    this.source_link = element.attr("href");
+                } else {
+                    this.link = element.attr("href");
+                }
                     break;
                 case "rights":
                     this.copyright = element.text();
@@ -142,13 +152,48 @@ public class Feed implements Runnable {
 
     @Override
     public String toString() {
-        return "Feed{" + "\n\tcategory=" + category + ",\n\tsubcategory=" + subcategory
-                + ",\n\tid=" + id + ",\n\ttitle=" + title + ",\n\tsummary=" + summary
-                + ",\n\tpublished=" + published + ",\n\tupdated=" + updated
-                + ",\n\tauthor=" + author + ",\n\tlink=" + link + ",\n\tcopyright="
-                + copyright + ",\n\tsource_title=" + source_title
-                + ",\n\tsource_link=" + source_link + "}\n\n";
+        return "Feed{" + "category=" + category + ", subcategory=" + subcategory 
+                + ", id=" + id + ", title=" + title + ", summary=" + summary 
+                + ", published=" + published + ", updated=" + updated 
+                + ", author=" + author + ", link=" + link + ", copyright=" 
+                + copyright + ", source_title=" + source_title 
+                + ", source_link=" + source_link + ", news=" + news + '}';
     }
+    
+    public String toXML() {
+        String xml = "<data>\n";
+        
+        xml += "\t<category>\n";
+            xml += "\t\t<id>\n\t\t\t" + category + "\n\t\t</id>\n";
+            xml += "\t\t<name>\n\t\t\t" + Category.map.get(category) + "\n\t\t</name>\n";
+        xml += "\t</category>\n";
+        
+        xml += "\t<subcategory>\n";
+            xml += "\t\t<id>\n\t\t\t" + subcategory + "\n\t\t</id>\n";
+            xml += "\t\t<name>\n\t\t\t" + SubCategory.map.get(subcategory) + "\n\t\t</name>\n";
+        xml += "\t</subcategory>\n";
+        
+        xml += "\t<subcategory>\n\t\t" + subcategory + "\n\t</subcategory>\n";
+        xml += "\t<id>\n\t\t" + id + "\n\t</id>\n";
+        xml += "\t<title>\n\t\t" + title + "\n\t</title>\n";
+        xml += "\t<summary>\n\t\t" + summary + "\n\t</summary>\n";
+        xml += "\t<published>\n\t\t" + published + "\n\t</published>\n";
+        xml += "\t<updated>\n\t\t" + updated + "\n\t</updated>\n";
+        xml += "\t<author>\n\t\t" + author + "\n\t</author>\n";
+        xml += "\t<link>\n\t\t" + link + "\n\t</link>\n";
+        xml += "\t<copyright>\n\t\t" + copyright + "\n\t</copyright>\n";
+        
+        xml += "\t<source>\n";
+            xml += "\t\t<title>\n\t\t\t" + source_title + "\n\t\t</title>\n";
+            xml += "\t\t<link>\n\t\t\t" + source_link + "\n\t\t</link>\n";
+        xml += "\t</source>\n";
+        
+        xml += "\t<news>\n\t\t" + news + "\n\t</news>\n";               
+        xml += "</data>\n";        
+        return xml;
+    }
+
+    
 
     @Override
     public void run() {
@@ -165,10 +210,21 @@ public class Feed implements Runnable {
             for (Element element : elements) {
                 this.link = element.attr("src");
             }
-        } catch (IOException ex) {
-            Log.fatal("Could not get real News URL", ex);
-        }
 
-        System.out.println(this.toString());
+            this.news = (new NewsCrawler(this.link)).getNews();
+        } catch (IOException ex) {
+            Log.fatal("Could not get real News URL. ", ex);
+        } catch (Exception ex) {
+            Log.fatal("Unknow error. ", ex);
+        }
+                
+
+        File file = new File("./data/"+category+"/"+subcategory+"/"+this.id+".xml");
+        file.getParentFile().mkdirs();
+        try {
+            FileUtils.writeStringToFile(file, this.toXML());
+        } catch (IOException ex) {
+            Logger.getLogger(Feed.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }

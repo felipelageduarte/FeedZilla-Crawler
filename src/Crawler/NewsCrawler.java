@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package news;
+package Crawler;
 
 import Log.Log;
 import java.io.IOException;
@@ -12,8 +12,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -21,14 +19,14 @@ import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import utils.ProbNews;
 
-public class NewsCrawler implements Runnable {
+public class NewsCrawler {
 
     private ArrayList<ProbNews> probNews;
-    private News news;
+    private String url;
     private boolean DEBUG = false;
 
-    public NewsCrawler(News news) {
-        this.news = news;
+    public NewsCrawler(String url) {
+        this.url = url;
         probNews = new ArrayList<ProbNews>();
     }
 
@@ -134,8 +132,10 @@ public class NewsCrawler implements Runnable {
         }
     }
 
-    private String getNews() {
-        if(DEBUG) System.out.println("probNews size:" + probNews.size());
+    private String processNews() {
+        if (DEBUG) {
+            System.out.println("probNews size:" + probNews.size());
+        }
         Collections.sort(probNews, new Comparator() {
             public int compare(Object o1, Object o2) {
                 ProbNews p1 = (ProbNews) o1;
@@ -147,18 +147,19 @@ public class NewsCrawler implements Runnable {
         double media = 0.0f;
 //        double desvioPadrao = 0.0f;
         for (ProbNews pbn : probNews) {
-            if(DEBUG) System.out.println("Tamanho do bloco de texto:" + pbn.news.length());
+            if (DEBUG) {
+                System.out.println("Tamanho do bloco de texto:" + pbn.news.length());
+            }
             media += pbn.news.length();
         }
         media /= probNews.size();
-        
+
 //        for (ProbNews pbn : probNews) {
 //            desvioPadrao += Math.pow(pbn.news.length() - media, 2.0);
 //        }
 //        desvioPadrao = Math.sqrt(desvioPadrao / (probNews.size() - 1));
 //        if(DEBUG) System.out.println("Media: " + media);
 //        if(DEBUG) System.out.println("Desvio Padrao: " + desvioPadrao);
-
         int newsEnd = 0;
         for (int i = 0; i < probNews.size(); ++i) {
             if (probNews.get(i).news.length() > media) {
@@ -191,54 +192,58 @@ public class NewsCrawler implements Runnable {
         return news;
     }
 
-    @Override
-    public void run() {        
+    public String getNews() {
         Document doc;
         try {
-            doc = Jsoup.connect(this.news.getURL()).get();
+            doc = Jsoup.connect(this.url).timeout(5000).get();
+            if (doc == null) {
+                Log.error("No document was retrieved");
+                return "";
+            }
             removeUnneededTags(doc);
             removeBlockWithLinksAndComments(doc);
             replaceWithText(doc);
             joinTextNodes(doc);
             getBiggestsText(doc);
-            this.news.setNews(getNews());
+            return processNews();
         } catch (IOException ex) {
-            Log.error("Error getting news: " + this.news.getURL(), ex);
-        }        
+            Log.error("Error getting news: " + this.url, ex);
+        }
+        return "";
     }
 
     public static void main(String[] args) throws Exception {
         String url = "";
 
         url = "http://www.reuters.com/article/2013/08/23/us-syria-crisis-american-idUSBRE97M08P20130823?feedType=RSS&feedName=worldNews";
-        (new NewsCrawler( (new News()).setURL(url) )).run();
-        
+        System.out.println((new NewsCrawler(url)).getNews());
+
         url = "http://www.bbc.co.uk/portuguese/noticias/2013/08/130807_eventos_publicos_copa_ru.shtml";
-        (new NewsCrawler( (new News()).setURL(url) )).run();
-        
+        System.out.println((new NewsCrawler(url)).getNews());
+
         url = "http://natelinha.ne10.uol.com.br/celebridades/2013/08/21/aos-12-anos-larissa-manoela-assume-namoro-com-colega-de-carrossel-65113.php";
-        (new NewsCrawler( (new News()).setURL(url) )).run();
-        
+        System.out.println((new NewsCrawler(url)).getNews());
+
         url = "http://edition.cnn.com/2013/08/22/world/meast/syria-civil-war/index.html?hpt=hp_t1";
-        (new NewsCrawler( (new News()).setURL(url) )).run();
-        
+        System.out.println((new NewsCrawler(url)).getNews());
+
         url = "http://www1.folha.uol.com.br/cotidiano/2013/08/1328945-nova-sinalizacao-do-transporte-coletivo-de-sp-usa-linha-dupla-como-a-das-estradas.shtml";
-        (new NewsCrawler( (new News()).setURL(url) )).run();
-        
+        System.out.println((new NewsCrawler(url)).getNews());
+
         url = "http://g1.globo.com/politica/noticia/2013/08/congresso-nacional-mantem-vetos-de-dilma-lei-do-ato-medico-e-ao-fpe.html";
-        (new NewsCrawler( (new News()).setURL(url) )).run();
-        
+        System.out.println((new NewsCrawler(url)).getNews());
+
         url = "http://www5.usp.br/31335/campus-de-piracicaba-abriga-diversidade-de-passaros-detecta-estudo/";
-        (new NewsCrawler( (new News()).setURL(url) )).run();
-        
+        System.out.println((new NewsCrawler(url)).getNews());
+
         url = "http://exame.abril.com.br/mercados/noticias/real-e-a-moeda-que-mais-perdeu-frente-o-dolar-no-mes";
-        (new NewsCrawler( (new News()).setURL(url) )).run();
-        
+        System.out.println((new NewsCrawler(url)).getNews());
+
         url = "http://www.keralanext.com/news/2013/08/23/article102.asp";
-        (new NewsCrawler( (new News()).setURL(url) )).run();
-        
+        System.out.println((new NewsCrawler(url)).getNews());
+
         url = "http://www.twincities.com/national/ci_23924912/banker-accused-rape-new-yorks-hamptons?source=rss";
-        (new NewsCrawler( (new News()).setURL(url) )).run();
-        
+        System.out.println((new NewsCrawler(url)).getNews());
+
     }
 }
