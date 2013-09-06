@@ -5,8 +5,7 @@
  */
 package feedzilla;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.jsoup.nodes.Element;
 
 /**
  *
@@ -14,28 +13,21 @@ import java.util.List;
  */
 public class Feed {
 
-    public String title;
+    public int category;
+    public int subcategory;
     public String id;
-    public String copyright;
+    public String title;
+    public String summary;
+    public String published;
     public String updated;
-    public String url;
+    public String author;
+    public String link;
+    public String copyright;
+    public String source_title;
+    public String source_link;
 
-    public List<FeedMessage> entries = new ArrayList<FeedMessage>();
-
-    public Feed(String url) {
-        this.url = url;
-    }
-
-    public Feed(String title, String id, String copyright, String updated) {
-        this.title = title;
-        this.id = id;
-        this.copyright = copyright;
-        this.updated = updated;
-    }
-
-    public Feed setTitle(String title) {
-        this.title = title;
-        return this;
+    public Feed(Element element) {
+        
     }
 
     public Feed setId(String id) {
@@ -43,8 +35,18 @@ public class Feed {
         return this;
     }
 
-    public Feed setCopyright(String copyright) {
-        this.copyright = copyright;
+    public Feed setTitle(String title) {
+        this.title = title;
+        return this;
+    }
+
+    public Feed setSummary(String summary) {
+        this.summary = summary;
+        return this;
+    }
+
+    public Feed setPublished(String published) {
+        this.published = published;
         return this;
     }
 
@@ -53,14 +55,28 @@ public class Feed {
         return this;
     }
 
-    public Feed setEntries(List<FeedMessage> entries) {
-        this.entries = entries;
+    public Feed setAuthor(String author) {
+        this.author = author;
         return this;
     }
 
-    public Feed setUrl(String url) {
-        this.url = url;
+    public Feed setLink(String link) {
+        this.link = link;
         return this;
     }
 
+    public Feed setCopyright(String copyright) {
+        this.copyright = copyright;
+        return this;
+    }
+
+    public Feed setSource_title(String source_title) {
+        this.source_title = source_title;
+        return this;
+    }
+
+    public Feed setSource_link(String source_link) {
+        this.source_link = source_link;
+        return this;
+    }
 }

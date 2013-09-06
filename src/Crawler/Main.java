@@ -6,14 +6,14 @@
 package Crawler;
 
 import Log.Log;
+import static com.sun.corba.se.impl.util.Utility.printStackTrace;
 import feedzilla.Category;
-import feedzilla.FeedMessage;
 import feedzilla.SubCategory;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
+import static java.lang.Thread.sleep;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -33,39 +33,22 @@ import org.jsoup.select.Elements;
  */
 public class Main {
 
-    public static String getContent(URL url) throws IOException {
-
-        URLConnection connection = url.openConnection();
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(
-                connection.getInputStream()));
-        
-        String inputLine, content = "";
-
-        while ((inputLine = in.readLine()) != null) {
-            content += inputLine;
+    public static void saveXML(ArrayList<Category> categories) throws IOException {
+        String xml = "<Categories>\n";
+        for (Category c : categories) {
+            xml += c.toXML(1);
         }
-        in.close();
-        
-        return content;
+        xml += "</Categories>";
+
+        FileUtils.writeStringToFile(new File("Categories.xml"), xml);
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
 
         Document doc;
         Elements elements;
         Scanner in;
-        URL categoryURL;
-        URL subcategoryURL;
-
-        try {
-            categoryURL = new URL("http://api.feedzilla.com/v1/categories.xml");
-            subcategoryURL = new URL("http://api.feedzilla.com/v1/subcategories.xml");
-        } catch (MalformedURLException ex) {
-            Log.fatal("Malformed URL", ex);
-            return;
-        }
-
+        String categoryURL = "http://api.feedzilla.com/v1/categories.xml";
         ArrayList<Category> categories = new ArrayList<Category>();
 
         /*
@@ -73,60 +56,27 @@ public class Main {
          */
         String categoryContent = "";
         try {
-            categoryContent = getContent(categoryURL);
-        } catch (IOException ex) {
-            Log.fatal("Could not get Categories", ex);
-            return;
-        }
-
-        doc = Jsoup.parse(categoryContent);
-
-        try {
-            FileUtils.writeStringToFile(new File("category.xml"), categoryContent);
-        } catch (IOException ex) {
-            Log.fatal("Could not save category.xml", ex);
-            return;
-        }
-
-        elements = doc.body().select("category");
-        for (Element element : elements) {
-            categories.add(new Category(element));
-        }
-        Collections.sort(categories);
-
-        /*
-         * Para cada categoria, mapeia todas as subcategorias existentes
-         */
-        try {
-            in = new Scanner(subcategoryURL.openStream());
-        } catch (IOException ex) {
-            Log.fatal("Could not get SubCategories", ex);
-            return;
-        }
-        String subcategoryContent = in.nextLine();
-        doc = Jsoup.parse(subcategoryContent);
-
-        try {
-            FileUtils.writeStringToFile(new File("subcategory.xml"), subcategoryContent);
-        } catch (IOException ex) {
-            Log.fatal("Could not save category.xml", ex);
-            return;
-        }
-
-        elements = doc.body().select("subcategory");
-        SubCategory sc;
-        for (Element element : elements) {
-            sc = new SubCategory(element);
-            for (Category category : categories) {
-                if (category.getId() == sc.getCategory()) {
-                    category.addSubCategory(sc);
-                    break;
-                }
+            doc = Jsoup.connect(categoryURL).get();
+            elements = doc.body().select("category");
+            for (Element element : elements) {
+                categories.add(new Category(element));
+                sleep(100);
             }
+            Collections.sort(categories);
+        } catch (IOException ex) {
+            Log.fatal("Could not get Categories/subcategories", ex);
+            return;
         }
 
-        for (Category c : categories) {
-            System.out.println(c.toString());
+        try {
+            saveXML(categories);
+        } catch (IOException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+        
+//        while(true){
+//            for()
+//        }
     }
 }

@@ -1,1 +1,1 @@
-FATAL  Set 06,2013 13:28  1:Crawler.Main:main - Could not get Categories - HTTP error fetching URL
+FATAL  Set 06,2013 14:41  1:Crawler.Main:main - Could not get Categories/subcategories - http://api.feedzilla.com/v1/categories/17/subcategories.xml

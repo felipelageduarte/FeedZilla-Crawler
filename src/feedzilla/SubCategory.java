@@ -47,6 +47,16 @@ public class SubCategory implements Comparable<SubCategory> {
         return this.category + "/" + this.id + ": " + this.name;
     }
 
+    public String toXML(int numTab){
+        String tab = "";
+        for(int i=0;i<numTab;++i) tab += "\t";
+        String xml = tab + "<subcategory>\n";
+        xml += tab + "\t<id>" + id + "</id>\n";
+        xml += tab + "\t<name>" + name + "</name>\n";        
+        xml += tab + "</subcategory>\n";
+        return xml;
+    }
+    
     public int compareTo(SubCategory o) {
         if (this.id < o.id) {
             return -1;
