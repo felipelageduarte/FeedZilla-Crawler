@@ -4,7 +4,6 @@
  */
 package Crawler;
 
-import Log.Log;
 import java.io.IOException;
 import static utils.HTMLTags.tagRemove;
 import static utils.HTMLTags.tagReplace;
@@ -133,26 +132,27 @@ public class NewsCrawler {
     }
 
     private String processNews() {
-        if (DEBUG) {
-            System.out.println("probNews size:" + probNews.size());
-        }
-        Collections.sort(probNews, new Comparator() {
-            public int compare(Object o1, Object o2) {
-                ProbNews p1 = (ProbNews) o1;
-                ProbNews p2 = (ProbNews) o2;
-                return p2.news.length() - p1.news.length();
-            }
-        });
 
-        double media = 0.0f;
+        String news = "";
+
+        if (probNews.size() > 1) {
+            Collections.sort(probNews, new Comparator() {
+                public int compare(Object o1, Object o2) {
+                    ProbNews p1 = (ProbNews) o1;
+                    ProbNews p2 = (ProbNews) o2;
+                    return p2.news.length() - p1.news.length();
+                }
+            });
+
+            double media = 0.0f;
 //        double desvioPadrao = 0.0f;
-        for (ProbNews pbn : probNews) {
-            if (DEBUG) {
-                System.out.println("Tamanho do bloco de texto:" + pbn.news.length());
+            for (ProbNews pbn : probNews) {
+                if (DEBUG) {
+                    System.out.println("Tamanho do bloco de texto:" + pbn.news.length());
+                }
+                media += pbn.news.length();
             }
-            media += pbn.news.length();
-        }
-        media /= probNews.size();
+            media /= probNews.size();
 
 //        for (ProbNews pbn : probNews) {
 //            desvioPadrao += Math.pow(pbn.news.length() - media, 2.0);
@@ -160,56 +160,59 @@ public class NewsCrawler {
 //        desvioPadrao = Math.sqrt(desvioPadrao / (probNews.size() - 1));
 //        if(DEBUG) System.out.println("Media: " + media);
 //        if(DEBUG) System.out.println("Desvio Padrao: " + desvioPadrao);
-        int newsEnd = 0;
-        for (int i = 0; i < probNews.size(); ++i) {
-            if (probNews.get(i).news.length() > media) {
-                newsEnd = i;
-            } else {
-                break;
+            int newsEnd = 0;
+            for (int i = 0; i < probNews.size(); ++i) {
+                if (probNews.get(i).news.length() > media) {
+                    newsEnd = i;
+                } else {
+                    break;
+                }
             }
-        }
-        //System.out.println("Indice do vetor que termina a noticia: "+newsEnd);
+            //System.out.println("Indice do vetor que termina a noticia: "+newsEnd);
 
-        /*Returns a view of the portion of this list 
-         * between the specified fromIndex, inclusive, 
-         * and toIndex, exclusive. (If fromIndex and 
-         * toIndex are equal, the returned list is 
-         * empty.)
-         */
-        List<ProbNews> pn = probNews.subList(0, newsEnd + 1);
-        Collections.sort(pn, new Comparator() {
-            public int compare(Object o1, Object o2) {
-                ProbNews p1 = (ProbNews) o1;
-                ProbNews p2 = (ProbNews) o2;
-                return p1.pos - p2.pos;
+            /*Returns a view of the portion of this list 
+             * between the specified fromIndex, inclusive, 
+             * and toIndex, exclusive. (If fromIndex and 
+             * toIndex are equal, the returned list is 
+             * empty.)
+             */
+            List<ProbNews> pn = probNews.subList(0, ++newsEnd);
+            Collections.sort(pn, new Comparator() {
+                public int compare(Object o1, Object o2) {
+                    ProbNews p1 = (ProbNews) o1;
+                    ProbNews p2 = (ProbNews) o2;
+                    return p1.pos - p2.pos;
+                }
+            });
+
+            for (ProbNews pbn : pn) {
+                news += pbn.news + " ";
             }
-        });
-        String news = "";
-        for (ProbNews pbn : pn) {
-            news += pbn.news + " ";
+        } else {
+            news = probNews.get(0).news;
         }
 
         return news;
     }
 
-    public String getNews() {
+    public String getNews() throws IOException {
         Document doc;
         try {
-            doc = Jsoup.connect(this.url).timeout(5000).get();
-            if (doc == null) {
-                Log.error("No document was retrieved");
-                return "";
-            }
-            removeUnneededTags(doc);
-            removeBlockWithLinksAndComments(doc);
-            replaceWithText(doc);
-            joinTextNodes(doc);
-            getBiggestsText(doc);
-            return processNews();
+            doc = Jsoup.connect(this.url)
+                    .timeout(60 * 1000)
+                    .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
+                    .referrer("http://www.google.com")
+                    .get();
         } catch (IOException ex) {
-            Log.error("Error getting news: " + this.url, ex);
+            throw new IOException("Error getting news");
         }
-        return "";
+
+        removeUnneededTags(doc);
+        removeBlockWithLinksAndComments(doc);
+        replaceWithText(doc);
+        joinTextNodes(doc);
+        getBiggestsText(doc);
+        return processNews();
     }
 
     public static void main(String[] args) throws Exception {

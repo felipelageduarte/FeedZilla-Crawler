@@ -33,7 +33,7 @@ public class Log {
     private static FileHandler fileXML;
     private static ConsoleHandler console;
     //Log Type
-    private static final boolean logConsole = true;
+    private static final boolean logConsole = false;
     private static final boolean logFile = true;
     private static final boolean logHTML = false;
     private static final boolean logXML = false;
@@ -57,19 +57,19 @@ public class Log {
             logger.addHandler(console);
         }
         if (logFile) {
-            fileTxt = new FileHandler("log", append);
+            fileTxt = new FileHandler("./log/log", append);
             fileTxt.setLevel(Level.ALL);
             fileTxt.setFormatter(new LogFormatter());
             logger.addHandler(fileTxt);
         }
         if (logHTML) {
-            fileHTML = new FileHandler("log.html");
+            fileHTML = new FileHandler("./log/log.html");
             fileHTML.setLevel(Level.ALL);
             fileHTML.setFormatter(new HtmlFormatter());
             logger.addHandler(fileHTML);
         }
         if (logXML) {
-            fileXML = new FileHandler("log.xml");
+            fileXML = new FileHandler("./log/log.xml");
             fileXML.setLevel(Level.ALL);
             fileXML.setFormatter(new XMLFormatter());
             logger.addHandler(fileXML);

@@ -3,13 +3,9 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/Dropbox/USP/Mestrado/Crawler/src/feedzilla/SubCategory.java</file>
-            <file>file:/D:/Dropbox/USP/Mestrado/Crawler/src/Crawler/FeedCrawler.java</file>
             <file>file:/D:/Dropbox/USP/Mestrado/Crawler/src/feedzilla/Feed.java</file>
-            <file>file:/D:/Dropbox/USP/Mestrado/Crawler/src/Main.java</file>
-            <file>file:/D:/Dropbox/USP/Mestrado/Crawler/src/Log/Log.java</file>
-            <file>file:/D:/Dropbox/USP/Mestrado/Crawler/src/feedzilla/Category.java</file>
-            <file>file:/D:/Dropbox/USP/Mestrado/Crawler/src/Crawler/NewsCrawler.java</file>
+            <file>file:/D:/Dropbox/USP/Mestrado/Crawler/src/crawler/FeedCrawler.java</file>
+            <file>file:/D:/Dropbox/USP/Mestrado/Crawler/src/crawler/NewsCrawler.java</file>
         </group>
     </open-files>
 </project-private>

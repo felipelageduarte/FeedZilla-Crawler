@@ -47,17 +47,21 @@ public class Main {
         Scanner in;
         String categoryURL = "http://api.feedzilla.com/v1/categories.xml";
         ArrayList<Category> categories = new ArrayList<Category>();
+        ArrayList<FeedCrawler> threads = new ArrayList<FeedCrawler>();
 
         /*
          * Mapeia todas as categorias existentes
          */
-        String categoryContent = "";
         try {
-            doc = Jsoup.connect(categoryURL).get();
+            doc = Jsoup.connect(categoryURL)
+                    .timeout(5 * 1000)
+                    .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
+                    .referrer("http://www.google.com")
+                    .get();
             elements = doc.body().select("category");
             for (Element element : elements) {
                 categories.add(new Category(element));
-                sleep(100);
+                sleep(500);
             }
             Collections.sort(categories);
         } catch (IOException ex) {
@@ -71,13 +75,25 @@ public class Main {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-//        while(true){
-            for(Category cat : categories){
-                for(SubCategory subcat : cat.getSubCategoryIterator()){
-                    new FeedCrawler(cat.getId(), subcat.getId()).run();
-                }
+        FeedCrawler fc = null;
+        for (Category cat : categories) {
+            for (SubCategory subcat : cat.getSubCategoryIterator()) {
+                fc = new FeedCrawler(cat.getId(), subcat.getId());
+                new Thread(fc).start();
+                threads.add(fc);
             }
-//            sleep(50*60*1000);
-//        }
+        }
+
+        while (true) {
+            File exit = new File("./exit");
+
+            if (exit.exists()) {
+                for (FeedCrawler fcAux : threads) {
+                    fcAux.kill();
+                }
+            } else {
+                sleep(60 * 1000);
+            }            
+        }
     }
 }

@@ -22,6 +22,7 @@ public class HTMLTags {
         tagReplace.add("abbr");
         tagReplace.add("acronym");
         tagReplace.add("b");
+        tagReplace.add("br");
         tagReplace.add("bdo");
         tagReplace.add("big");
         tagReplace.add("blockquote");
@@ -60,7 +61,6 @@ public class HTMLTags {
         tagReplace.add("tt");
         tagReplace.add("time");
         tagReplace.add("u");
-        tagReplace.add("wbr");
         
         
         
